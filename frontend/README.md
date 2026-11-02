@@ -9,6 +9,17 @@ npm run dev
 
 Set `VITE_API` in `frontend/.env.local` if the backend is not running at `http://localhost:4000/api/v1`.
 
+## Deploy on Render
+
+Create a Render **Static Site** from the frontend repository with:
+
+- Build command: `npm install && npm run build`
+- Publish directory: `dist`
+
+Set `VITE_API` to the deployed backend URL ending in `/api/v1`, along with the
+`VITE_FIREBASE_*` variables. Vite embeds these values during the build, so deploy
+again after changing them.
+
 ## Run the backend
 
 From `backend/`, install dependencies and start the API with `npm install` and `npm run dev`. The server loads environment variables from `backend/config/.env`.

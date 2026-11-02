@@ -10,3 +10,16 @@ For a single-node local replica set named `rs0`:
 4. Add Firebase and SMTP credentials to `config/.env` to enable Google sign-in and receipt emails.
 
 Set the remaining secrets and service credentials in `config/.env`; do not commit that file.
+
+## Deploy on Render
+
+Create a Render **Web Service** from the backend repository with:
+
+- Root directory: repository root
+- Build command: `npm install`
+- Start command: `npm start`
+
+Add the production environment variables in Render. Set `NODE_ENV=production` and
+`FRONTEND_URL` to the deployed frontend URL. Also configure `MONGO_URI` (or the
+database variable used by your deployment), `JWT_SECRET`, Firebase, Cloudinary,
+SMTP, and payment credentials as needed. Render supplies `PORT` automatically.
