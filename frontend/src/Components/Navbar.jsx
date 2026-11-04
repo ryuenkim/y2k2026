@@ -29,7 +29,10 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
             <div className="nav-container">
                 {!isAuthPage && <div className="nav-links">
                     {isAdmin ? (
-                        <NavLink to="/admin">Dashboard</NavLink>
+                        <>
+                            <NavLink to="/admin">Dashboard</NavLink>
+                            <NavLink to="/shop">Shop</NavLink>
+                        </>
                     ) : <>
                         <NavLink to="/" end>Home</NavLink>
                         <NavLink to="/shop">Shop</NavLink>
@@ -42,7 +45,7 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
                 </Link>
 
                 <div className="nav-actions">
-                    {!isAdmin && !isAuthPage && <Link to="/cart" className="nav-btn">
+                    {!isAuthPage && <Link to="/cart" className="nav-btn">
                         <FaShoppingCart />
                         <span className="cart-count">{cartCount}</span>
                     </Link>}
@@ -54,7 +57,7 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
                             <span className="profile-nav-name">{user.name || 'Account'}</span>
                         </Link>
                     ) : !isAuthPage && <NavLink to="/login" className="login-btn"><FaUser /> <span>Log in</span></NavLink>}
-                    {user && !isAdmin && <NavLink to="/orders" className="login-btn">Orders</NavLink>}
+                    {user && <NavLink to="/orders" className="login-btn">Orders</NavLink>}
                     {user && <button type="button" className="login-btn" onClick={handleLogout} disabled={loggingOut}>{loggingOut ? 'Logging out...' : 'Logout'}</button>}
                 </div>
                 {logoutError && <small className="nav-error">{logoutError}</small>}
