@@ -24,15 +24,15 @@ test('order update emails include items, subtotal, and grand total', () => {
     assert.match(message, /Grand total: PHP 550\.00/);
 });
 
-test('order emails avoid suggesting that simulated refunds are real', () => {
+test('order emails describe paid cancelled orders without simulation language', () => {
     const message = createOrderEmailMessage({
         ...order,
         orderStatus: 'Cancelled',
-        transactionStatus: 'refunded'
+        transactionStatus: 'paid'
     }, 'Customer', true);
 
-    assert.match(message, /Refund status marked \(simulation only; no provider confirmation\)/);
-    assert.doesNotMatch(message, /refund issued/i);
+    assert.match(message, /Payment status: Paid/);
+    assert.doesNotMatch(message, /simulation/i);
 });
 
 test('COD order email states that payment is due on delivery', () => {
@@ -48,12 +48,12 @@ test('COD order email states that payment is due on delivery', () => {
 test('confirmation email and receipt include order status for COD and online orders', () => {
     for (const payment of [
         { paymentMethod: 'COD', transactionStatus: 'pending', expectedPayment: 'Payment due on delivery' },
-        { paymentMethod: 'ONLINE', transactionStatus: 'paid', expectedPayment: 'Paid (simulation only; no real payment processed)' }
+        { paymentMethod: 'ONLINE', transactionStatus: 'paid', expectedPayment: 'Paid' }
     ]) {
         const orderWithPayment = {
             ...order,
             orderStatus: 'Processing',
-            paymentInfo: { provider: 'simulation' },
+            paymentInfo: { provider: 'online' },
             ...payment
         };
         const message = createOrderEmailMessage(orderWithPayment, 'Customer');

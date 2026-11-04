@@ -52,7 +52,7 @@ const emailOrderReceipt = async (order, statusUpdate = false) => {
 };
 
 exports.newOrder = async (req, res) => {
-    const { orderItems, shippingInfo, paymentMethod, paymentSimulation, idempotencyKey } = req.body;
+    const { orderItems, shippingInfo, paymentMethod, idempotencyKey } = req.body;
     if (!isValidIdempotencyKey(idempotencyKey)) {
         return res.status(400).json({ success: false, message: 'A valid checkout request key is required. Refresh checkout and try again.' });
     }
@@ -60,16 +60,10 @@ exports.newOrder = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Your cart is empty' });
     }
     if (!['COD', 'ONLINE'].includes(paymentMethod)) {
-        return res.status(400).json({ success: false, message: 'Choose Cash on Delivery or simulated online payment' });
-    }
-    if (paymentMethod === 'ONLINE' && !['approved', 'declined'].includes(paymentSimulation)) {
-        return res.status(400).json({ success: false, message: 'Choose a simulated online payment result' });
-    }
-    if (paymentMethod === 'ONLINE' && paymentSimulation === 'declined') {
-        return res.status(402).json({ success: false, paymentStatus: 'failed', message: 'Simulated payment was declined. No order was created; your cart is unchanged.' });
+        return res.status(400).json({ success: false, message: 'Choose Cash on Delivery or Online payment' });
     }
 
-    const idempotencyFingerprint = createOrderFingerprint({ orderItems, shippingInfo, paymentMethod, paymentSimulation });
+    const idempotencyFingerprint = createOrderFingerprint({ orderItems, shippingInfo, paymentMethod });
     const existingOrder = await Order.findOne({ user: req.user._id, idempotencyKey });
     if (existingOrder) {
         if (existingOrder.idempotencyFingerprint !== idempotencyFingerprint) {
@@ -130,10 +124,10 @@ exports.newOrder = async (req, res) => {
         orderItems: verifiedItems,
         shippingInfo,
         paymentInfo: {
-            id: `${paymentMethod === 'COD' ? 'COD' : 'SIM'}-${Date.now()}`,
+            id: `${paymentMethod}-${Date.now()}`,
             status: isPaid ? 'paid' : 'pending',
-            provider: 'simulation',
-            label: paymentMethod === 'COD' ? 'Cash on Delivery' : 'Simulated online payment'
+            provider: paymentMethod === 'COD' ? 'cash-on-delivery' : 'online',
+            label: paymentMethod === 'COD' ? 'Payment due on delivery' : 'Paid online'
         },
         paymentMethod,
         itemsPrice,
@@ -142,7 +136,8 @@ exports.newOrder = async (req, res) => {
         totalPrice,
         transactionStatus: isPaid ? 'paid' : 'pending',
         ...(isPaid ? { paidAt: new Date() } : {}),
-        stockReserved: true,
+        orderStatus: 'Pending',
+        stockReserved: false,
         idempotencyKey,
         idempotencyFingerprint,
         user: req.user._id
@@ -151,7 +146,6 @@ exports.newOrder = async (req, res) => {
     let order;
     try {
         await session.withTransaction(async () => {
-            await reserveStock(verifiedItems, session);
             [order] = await Order.create([orderData], { session });
         });
         const receiptEmailSent = await emailOrderReceipt(order);
@@ -214,15 +208,11 @@ exports.cancelMyOrder = async (req, res) => {
         await session.withTransaction(async () => {
             order = await Order.findOne({ _id: req.params.id, user: req.user._id }).session(session);
             if (!order) throw Object.assign(new Error('Order not found'), { statusCode: 404 });
-            if (order.orderStatus !== 'Processing') throw Object.assign(new Error('Customers can cancel orders only while they are Processing'), { statusCode: 400 });
+            if (!['Pending', 'Processing', 'Shipped'].includes(order.orderStatus)) throw Object.assign(new Error('Customers can cancel orders only before delivery'), { statusCode: 400 });
             order.orderStatus = 'Cancelled';
             order.cancelledAt = new Date();
             order.cancellationReason = typeof req.body.reason === 'string' ? req.body.reason.trim().slice(0, 500) : 'Cancelled by customer';
             await restoreReservedStock(order, session);
-            if (order.transactionStatus === 'paid') {
-                order.transactionStatus = 'voided';
-                order.paymentInfo.status = 'voided';
-            }
             await order.save({ session });
         });
         return res.status(200).json({ success: true, order });
@@ -257,28 +247,29 @@ exports.updateOrder = async (req, res) => {
             if (status && status !== order.orderStatus && !isValidStatusTransition(order.orderStatus, status)) {
                 throw Object.assign(new Error(`Cannot change order status from ${order.orderStatus} to ${status}`), { statusCode: 400 });
             }
-            if (order.paymentMethod === 'COD' && transactionStatus === 'paid' && (status || order.orderStatus) !== 'Delivered') {
+            const nextOrderStatus = status || order.orderStatus;
+            if (order.paymentMethod === 'COD' && transactionStatus === 'paid' && nextOrderStatus !== 'Delivered') {
                 throw Object.assign(new Error('COD payment can only be marked paid when the order is delivered'), { statusCode: 400 });
             }
-            if (transactionStatus === 'pending' && order.transactionStatus !== 'pending') throw Object.assign(new Error('Transactions cannot return to pending'), { statusCode: 400 });
-            if (transactionStatus === 'paid' && order.transactionStatus !== 'pending') throw Object.assign(new Error('Only pending transactions can become paid'), { statusCode: 400 });
-            if (transactionStatus === 'refunded' && order.transactionStatus !== 'paid') throw Object.assign(new Error('Only paid transactions can be refunded'), { statusCode: 400 });
-            if (order.orderStatus === 'Cancelled' && transactionStatus) throw Object.assign(new Error('Cancelled orders cannot change transaction status'), { statusCode: 400 });
-            if (status === 'Cancelled' || transactionStatus === 'refunded' || transactionStatus === 'failed') {
-                if (order.orderStatus === 'Delivered') throw Object.assign(new Error('Delivered orders cannot be cancelled or refunded'), { statusCode: 400 });
-                await restoreReservedStock(order, session);
-                if (status === 'Cancelled' || transactionStatus !== undefined) {
-                    order.orderStatus = 'Cancelled';
-                    order.cancelledAt = order.cancelledAt || new Date();
-                    order.cancellationReason = String(req.body.reason || (transactionStatus === 'refunded' ? 'Transaction refunded' : 'Transaction failed')).slice(0, 500);
-                    if (status === 'Cancelled' && order.transactionStatus === 'paid') {
-                        order.transactionStatus = 'voided';
-                        order.paymentInfo.status = 'voided';
-                    }
+            if (transactionStatus && transactionStatus !== order.transactionStatus) {
+                if (order.transactionStatus === 'paid') throw Object.assign(new Error('Paid transactions cannot change payment status'), { statusCode: 400 });
+                if (transactionStatus !== 'paid') throw Object.assign(new Error('Payment can only advance from pending to paid'), { statusCode: 400 });
+                if (order.paymentMethod !== 'COD' || nextOrderStatus !== 'Delivered') {
+                    throw Object.assign(new Error('COD payment can only be marked paid when the order is delivered'), { statusCode: 400 });
                 }
             }
+            if (order.orderStatus === 'Cancelled' && (status || transactionStatus)) {
+                throw Object.assign(new Error('Cancelled orders cannot change status or payment'), { statusCode: 400 });
+            }
+            if (status === 'Cancelled') {
+                if (order.orderStatus === 'Delivered') throw Object.assign(new Error('Delivered orders cannot be cancelled'), { statusCode: 400 });
+                await restoreReservedStock(order, session);
+                order.orderStatus = 'Cancelled';
+                order.cancelledAt = order.cancelledAt || new Date();
+                order.cancellationReason = String(req.body.reason || 'Cancelled by administrator').slice(0, 500);
+            }
             if (status && status !== 'Cancelled') {
-                if (status === 'Shipped' && order.paymentMethod === 'COD' && !order.stockReserved) {
+                if (status === 'Processing' && !order.stockReserved) {
                     await reserveStock(order.orderItems, session);
                     order.stockReserved = true;
                 }
@@ -292,7 +283,7 @@ exports.updateOrder = async (req, res) => {
                     }
                 }
             }
-            if (transactionStatus) {
+            if (transactionStatus && transactionStatus !== order.transactionStatus) {
                 order.transactionStatus = transactionStatus;
                 order.paymentInfo.status = transactionStatus;
                 if (transactionStatus === 'paid') order.paidAt = order.paidAt || new Date();

@@ -12,7 +12,7 @@ const Orders = () => {
     const [actionId, setActionId] = useState('');
     const { confirm, notify } = useDialog();
     const cancelOrder = async (order) => {
-        if (!await confirm('Cancel this Processing order? Reserved stock will be restored.', 'Cancel order?')) return;
+        if (!await confirm('Cancel this order? Reserved stock will be restored if processing has started.', 'Cancel order?')) return;
         setActionId(order._id);
         try {
             await api.post(`/order/${order._id}/cancel`, { reason: 'Cancelled by customer' });
@@ -41,7 +41,7 @@ const Orders = () => {
                 <div className="order-item-description"><strong>{item.name}</strong><small>Qty {item.quantity} · ₱{Number(item.price).toFixed(2)} each</small><small>Item total · ₱{(item.price * item.quantity).toFixed(2)}</small></div>
             </div>)}</div>
             <div className="order-history-totals"><span>Subtotal <strong>₱{Number(order.itemsPrice).toFixed(2)}</strong></span><span>Shipping <strong>₱{Number(order.shippingPrice).toFixed(2)}</strong></span><span>Tax <strong>₱{Number(order.taxPrice).toFixed(2)}</strong></span><span className="order-grand-total">Total <strong>₱{Number(order.totalPrice).toFixed(2)}</strong></span></div>
-            {order.orderStatus === "Processing" && <button className="danger-btn" type="button" disabled={actionId === order._id} onClick={() => cancelOrder(order)}>{actionId === order._id ? "Cancelling..." : "Cancel order"}</button>}
+            {['Pending', 'Processing', 'Shipped'].includes(order.orderStatus) && <button className="danger-btn" type="button" disabled={actionId === order._id} onClick={() => cancelOrder(order)}>{actionId === order._id ? "Cancelling..." : "Cancel order"}</button>}
         </article>)}
         {!error && !loading && !orders.length && <section className="empty-state"><h2>No orders yet</h2><p>Your purchases will appear here with their status and receipt details.</p><Link className="view-btn" to="/shop">Browse products</Link></section>}
     </main>;

@@ -174,7 +174,6 @@ const Checkout = ({ items, user, clearCart }) => {
                 orderItems: currentItems.map(({ product, name, price, image, quantity }) => ({ product, name, price, image, quantity })),
                 shippingInfo,
                 paymentMethod: payment.paymentMethod,
-                paymentSimulation: payment.paymentSimulation,
                 idempotencyKey: idempotencyKey.current
             }));
             try {
@@ -188,7 +187,7 @@ const Checkout = ({ items, user, clearCart }) => {
             else if (!isBuyNow) clearCart();
             notify(payment.paymentMethod === 'COD'
                 ? 'COD order placed. Payment is due when it arrives.'
-                : 'Simulated payment approved. Your order is confirmed.');
+                : 'Online payment recorded. Your order is confirmed.');
             setStep(4);
         } catch (requestError) {
             const message = requestError.response?.data?.message || orderError || 'Unable to place order';

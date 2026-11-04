@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as yup from 'yup';
 import { fetchAdminAnalytics, refreshAdmin } from '../../actions/adminActions';
 import {
-    saveAdminProduct, deleteAdminProducts, seedAdminProducts,
+    saveAdminProduct, deleteAdminProducts,
     updateAdminUser, updateAdminOrder, deleteAdminReview
 } from '../../actions/adminMutationActions';
 import { useDialog } from '../dialogContext';
@@ -89,7 +89,7 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
         revenue: analytics.totalSales || 0,
         products: products.length,
         users: users.length,
-        pending: orders.filter((order) => order.orderStatus === 'Processing').length
+        pending: orders.filter((order) => order.orderStatus === 'Pending').length
     }), [analytics, products, users, orders]);
 
     const submitProduct = async (event) => {
@@ -170,21 +170,6 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
         }
     };
 
-    const seedProducts = async () => {
-        if (!await confirm('Add the mock products for testing?', 'Add mock products?')) return;
-        setActionLoading(true);
-        try {
-            await dispatch(seedAdminProducts());
-            setMessage('Mock products added.');
-            notify('Mock products added to the catalog.');
-            await load();
-        } catch (requestError) {
-            showAdminError(requestError.response?.data?.message || 'Unable to add sample products');
-        } finally {
-            setActionLoading(false);
-        }
-    };
-
     const updateUser = async (account, values = {}) => {
         if (values.isActive !== undefined && !await confirm(`${values.isActive ? 'Activate' : 'Deactivate'} ${account.name}'s account?`, 'Update account status?')) return;
         const role = values.role || await prompt('Choose the access level for this account.', account.role, 'Update account role', ['user', 'admin']);
@@ -206,9 +191,9 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
 
     const updateOrder = async (order, field, value) => {
         if (field === 'status' && value === 'Cancelled' && !await confirm('Cancel this order and restore its reserved stock?', 'Cancel order?')) return;
-        if (field === 'status' && value === 'Shipped' && !await confirm('Move this order to Shipped? Its stock was reserved when the order was placed.', 'Ship order?')) return;
+        if (field === 'status' && value === 'Processing' && !await confirm('Move this order to Processing? This will reserve and decrease stock.', 'Start processing order?')) return;
+        if (field === 'status' && value === 'Shipped' && !await confirm('Move this order to Shipped?', 'Ship order?')) return;
         if (field === 'status' && value === 'Delivered' && !await confirm('Mark this order as delivered?', 'Mark order delivered?')) return;
-        if (field === 'transactionStatus' && value === 'refunded' && !await confirm('Record the refund status for this simulated payment? This does not issue a real refund.', 'Mark simulated refund status?')) return;
         try {
             const { data } = await dispatch(updateAdminOrder(order._id, { [field]: value }));
             if (data.receiptEmailSent === false) {
@@ -247,7 +232,7 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
             {(actionLoading || adminLoading) && <p className="admin-message" role="status" aria-live="polite">{adminLoading ? 'Loading admin data...' : 'Processing action...'}</p>}
             <nav className="admin-tabs modern-tabs" aria-label="Administration sections">{['overview', 'products', 'orders', 'users', 'reviews'].map((name) => <button type="button" aria-current={tab === name ? 'page' : undefined} className={tab === name ? 'active' : ''} key={name} onClick={() => { setTab(name); setError(''); setMessage(''); }}>{name}</button>)}</nav>
             {tab === 'overview' && <AdminOverview stats={stats} analytics={analytics} analyticsLoading={analyticsLoading} range={range} setRange={setRange} onApply={loadAnalytics} />}
-            {tab === 'products' && <AdminProducts products={products} selected={selected} setSelected={setSelected} productForm={productForm} setProductForm={setProductForm} productErrors={productErrors} setProductErrors={setProductErrors} editingProduct={editingProduct} actionLoading={actionLoading} onSubmit={submitProduct} onEdit={editProduct} onCancelEdit={cancelProductEdit} onSeed={seedProducts} onDeleteSelected={deleteSelected} />}
+            {tab === 'products' && <AdminProducts products={products} selected={selected} setSelected={setSelected} productForm={productForm} setProductForm={setProductForm} productErrors={productErrors} setProductErrors={setProductErrors} editingProduct={editingProduct} actionLoading={actionLoading} onSubmit={submitProduct} onEdit={editProduct} onCancelEdit={cancelProductEdit} onDeleteSelected={deleteSelected} />}
             {tab === 'orders' && <AdminOrders orders={orders} onUpdate={updateOrder} />}
             {tab === 'users' && <AdminUsers users={users} onUpdate={updateUser} />}
             {tab === 'reviews' && <AdminReviews products={products} onDelete={deleteReview} />}

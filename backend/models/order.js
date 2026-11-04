@@ -31,14 +31,14 @@ const orderSchema = new mongoose.Schema({
     ],
     paymentInfo: {
         id: { type: String },
-        status: { type: String, enum: ['pending', 'paid', 'refunded', 'failed', 'voided'], default: 'pending' },
-        provider: { type: String, default: 'simulation' },
-        label: { type: String, default: 'Simulated payment' }
+        status: { type: String, enum: ['pending', 'paid'], default: 'pending' },
+        provider: { type: String, default: 'online' },
+        label: { type: String, default: 'Payment pending' }
     },
     paymentMethod: { type: String, enum: ['COD', 'ONLINE'], default: 'ONLINE' },
     transactionStatus: {
         type: String,
-        enum: ['pending', 'paid', 'refunded', 'failed', 'voided'],
+        enum: ['pending', 'paid'],
         default: 'pending'
     },
     paidAt: { type: Date },
@@ -48,9 +48,9 @@ const orderSchema = new mongoose.Schema({
     totalPrice: { type: Number, required: true, default: 0.0 },
     orderStatus: {
         type: String,
-        enum: ['Processing', 'Shipped', 'Delivered', 'Cancelled'],
+        enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
         required: true,
-        default: 'Processing'
+        default: 'Pending'
     },
     stockReserved: { type: Boolean, default: false },
     stockRestoredAt: { type: Date },

@@ -4,7 +4,7 @@ const isValidIdempotencyKey = (key) => (
     typeof key === 'string' && /^[a-zA-Z0-9._:-]{8,128}$/.test(key)
 );
 
-const createOrderFingerprint = ({ orderItems, shippingInfo, paymentMethod, paymentSimulation }) => crypto
+const createOrderFingerprint = ({ orderItems, shippingInfo, paymentMethod }) => crypto
     .createHash('sha256')
     .update(JSON.stringify({
         items: orderItems.map((item) => ({
@@ -13,8 +13,7 @@ const createOrderFingerprint = ({ orderItems, shippingInfo, paymentMethod, payme
             price: Number(item.price)
         })).sort((left, right) => left.product.localeCompare(right.product)),
         shippingInfo,
-        paymentMethod,
-        paymentSimulation: paymentMethod === 'ONLINE' ? paymentSimulation : undefined
+        paymentMethod
     }))
     .digest('hex');
 

@@ -49,10 +49,10 @@ const OrderSuccess = ({ order, receiptEmailSent }) => {
         <section className="checkout-card order-success">
             <p className="eyebrow">ORDER CONFIRMED</p>
             <h1>Thanks for your order.</h1>
-            <p>Order #{order?._id?.slice(-8)} is {order?.orderStatus || 'Processing'}.</p>
+            <p>Order #{order?._id?.slice(-8)} is {order?.orderStatus || 'Pending'}.</p>
             <p>{order?.paymentMethod === 'COD'
                 ? 'Cash on Delivery selected. Payment is due when your order arrives.'
-                : 'Your simulated online payment was approved.'}</p>
+                : 'Your online payment was recorded as paid.'}</p>
             <p>{emailSent ? 'A PDF receipt was sent to your account email.' : 'Receipt email is not available yet. You can retry sending it.'}</p>
             {error && <p className="error-state" role="alert">{error}</p>}
             <div className="checkout-actions receipt-actions">

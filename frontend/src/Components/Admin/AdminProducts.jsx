@@ -6,7 +6,7 @@ const categories = ['Laptops', 'Accessories', 'Headphones', 'Cell Phones', 'Came
 const AdminProducts = ({
     products, selected, setSelected, productForm, setProductForm, productErrors,
     setProductErrors, editingProduct, actionLoading, onSubmit, onEdit, onCancelEdit,
-    onSeed, onDeleteSelected
+    onDeleteSelected
 }) => {
     const setField = (field, value) => {
         setProductForm((current) => ({ ...current, [field]: value }));
@@ -97,7 +97,7 @@ const AdminProducts = ({
                 </div>
             </form>
             <section className="data-card">
-                <div className="table-toolbar"><div><p className="eyebrow">INVENTORY</p><h2>Products</h2><span>{products.length} items · {selected.length} selected</span></div><div className="admin-table-actions"><button type="button" onClick={onSeed} disabled={actionLoading}>Add sample items</button><button type="button" disabled={!selected.length || actionLoading} onClick={onDeleteSelected}>Delete selected</button></div></div>
+                <div className="table-toolbar"><div><p className="eyebrow">INVENTORY</p><h2>Products</h2><span>{products.length} items · {selected.length} selected</span></div><div className="admin-table-actions"><button type="button" disabled={!selected.length || actionLoading} onClick={onDeleteSelected}>Delete selected</button></div></div>
                 {!selected.length && products.length > 0 && <p className="admin-table-hint">Select product rows to enable bulk deletion.</p>}
                 <div className="admin-product-grid"><DataGrid rows={products} columns={columns} getRowId={(row) => row._id} checkboxSelection disableRowSelectionOnClick showToolbar slots={{ toolbar: AdminGridToolbar }} rowSelectionModel={{ type: 'include', ids: new Set(selected) }} onRowSelectionModelChange={(model) => setSelected([...model.ids])} pageSizeOptions={[10, 25, 50]} localeText={{ noRowsLabel: 'No products yet. Add a product using the form.' }} initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} /></div>
             </section>
