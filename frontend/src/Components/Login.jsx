@@ -78,11 +78,7 @@ const Login = () => {
             <span className="social-provider-mark google-mark" aria-hidden="true">G</span>
             {socialProviderLoading === 'google' ? 'Connecting to Google...' : 'Continue with Google'}
         </button>
-        <button className="secondary-action social-signin facebook-signin" type="button" onClick={() => signInWithProvider('facebook')} disabled={loading || socialLoginBusy}>
-            <span className="social-provider-mark facebook-mark" aria-hidden="true">f</span>
-            {socialProviderLoading === 'facebook' ? 'Connecting to Facebook...' : 'Continue with Facebook'}
-        </button>
-        {!isFirebaseConfigured && <small className="field-error">Google and Facebook sign-in need Firebase web app settings in the frontend environment.</small>}
+        {!isFirebaseConfigured && <small className="field-error">Google sign-in needs Firebase web app settings in the frontend environment.</small>}
         <div className="auth-switch"><span>New to Y2K?</span><Link to="/register">Create your account</Link></div>
     </form></section><aside className="auth-aside"><span>Y2K</span><p>Technology<br />with attitude.</p><b>CURATED / CURRENT / CYBER</b></aside></main>;
 };
