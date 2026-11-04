@@ -31,7 +31,10 @@ const reserveStock = async (items, session) => {
 const emailOrderReceipt = async (order, statusUpdate = false) => {
     try {
         const user = await User.findById(order.user).select('email name');
-        if (!user?.email) return false;
+        if (!user?.email) {
+            console.warn(`Receipt email skipped for order ${order._id}: customer has no email address`);
+            return false;
+        }
         const pdf = createReceiptPdf(order);
         await sendEmail({
             email: user.email,
@@ -195,6 +198,10 @@ exports.downloadOrderReceipt = async (req, res) => {
 exports.resendOrderReceipt = async (req, res) => {
     const order = await Order.findOne({ _id: req.params.id, user: req.user._id });
     if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+    const recipient = await User.findById(order.user).select('email');
+    if (!recipient?.email) {
+        return res.status(422).json({ success: false, message: 'Add an email address to your profile before requesting a receipt email.' });
+    }
     const receiptEmailSent = await emailOrderReceipt(order);
     if (!receiptEmailSent) return res.status(503).json({ success: false, message: 'Receipt email could not be sent. Please try again later.' });
     return res.status(200).json({ success: true, message: 'Receipt email sent' });

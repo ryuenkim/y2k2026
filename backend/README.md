@@ -22,4 +22,6 @@ Create a Render **Web Service** from the backend repository with:
 Add the production environment variables in Render. Set `NODE_ENV=production` and
 `FRONTEND_URL` to the deployed frontend URL. Also configure `MONGO_URI` (or the
 database variable used by your deployment), `JWT_SECRET`, Firebase, Cloudinary,
-SMTP, and payment credentials as needed. Render supplies `PORT` automatically.
+and SMTP credentials as needed. For Mailtrap, configure `SMTP_HOST`,
+`SMTP_PORT=2525`, `SMTP_SECURE=false`, `SMTP_EMAIL`, `SMTP_PASSWORD`,
+`SMTP_FROM_EMAIL`, and `SMTP_FROM_NAME`. Render supplies `PORT` automatically.
