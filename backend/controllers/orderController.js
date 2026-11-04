@@ -136,8 +136,8 @@ exports.newOrder = async (req, res) => {
         totalPrice,
         transactionStatus: isPaid ? 'paid' : 'pending',
         ...(isPaid ? { paidAt: new Date() } : {}),
-        orderStatus: 'Pending',
-        stockReserved: false,
+        orderStatus: isPaid ? 'Processing' : 'Pending',
+        stockReserved: isPaid,
         idempotencyKey,
         idempotencyFingerprint,
         user: req.user._id
@@ -146,6 +146,7 @@ exports.newOrder = async (req, res) => {
     let order;
     try {
         await session.withTransaction(async () => {
+            if (isPaid) await reserveStock(verifiedItems, session);
             [order] = await Order.create([orderData], { session });
         });
         const receiptEmailSent = await emailOrderReceipt(order);
