@@ -1,5 +1,11 @@
 const formatMoney = (amount) => `PHP ${Number(amount || 0).toFixed(2)}`;
 const getOrderPaymentDescription = require('./orderPaymentStatus');
+const escapeHtml = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 const escapePdfText = (value) => String(value)
     .replace(/[^\x20-\x7E]/g, '?')
@@ -146,4 +152,41 @@ const createOrderEmailMessage = (order, customerName, statusUpdate = false) => {
     return `Hi ${customerName},\n\n${statusUpdate ? 'Your order has been updated.' : 'Your order is confirmed.'}\n\n${orderDetails}\n\nYour PDF receipt is attached.`;
 };
 
-module.exports = { createReceiptPdf, createOrderEmailMessage, formatMoney };
+const createOrderEmailHtml = (order, customerName, statusUpdate = false) => {
+    const items = (order.orderItems || []).map((item) => `
+        <tr>
+            <td style="padding:12px 0;border-bottom:1px solid #ececf0;color:#24252b;">${escapeHtml(item.name)}</td>
+            <td style="padding:12px 0;border-bottom:1px solid #ececf0;text-align:center;color:#666a73;">${item.quantity}</td>
+            <td style="padding:12px 0;border-bottom:1px solid #ececf0;text-align:right;color:#24252b;">${formatMoney(item.price * item.quantity)}</td>
+        </tr>`).join('');
+    const title = statusUpdate ? 'Your order has been updated.' : 'Your order is confirmed.';
+    return `<!doctype html>
+<html><body style="margin:0;background:#f4f4f6;font-family:Arial,sans-serif;color:#24252b;">
+<div style="max-width:620px;margin:0 auto;padding:32px 16px;">
+  <div style="background:#18191f;padding:28px 32px;border-radius:16px 16px 0 0;">
+    <div style="color:#f4a8c6;font-size:12px;font-weight:bold;letter-spacing:2px;">Y2K TECH SHOP</div>
+    <h1 style="margin:14px 0 0;color:#fff;font-size:28px;">${escapeHtml(title)}</h1>
+  </div>
+  <div style="background:#fff;padding:32px;border-radius:0 0 16px 16px;">
+    <p style="font-size:16px;">Hi ${escapeHtml(customerName)},</p>
+    <p style="color:#666a73;">Thanks for shopping with us. Your PDF receipt is attached for your records.</p>
+    <div style="margin:24px 0;padding:16px;background:#f7f7f8;border-radius:10px;">
+      <strong>Order #${escapeHtml(order._id)}</strong><br>
+      <span style="color:#666a73;">${escapeHtml(order.orderStatus || 'Processing')} · ${escapeHtml(getOrderPaymentDescription(order))}</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+      <thead><tr><th style="padding:10px 0;text-align:left;color:#858993;font-size:11px;letter-spacing:1px;">ITEM</th><th style="padding:10px 0;color:#858993;font-size:11px;">QTY</th><th style="padding:10px 0;text-align:right;color:#858993;font-size:11px;">AMOUNT</th></tr></thead>
+      <tbody>${items}</tbody>
+    </table>
+    <table style="width:100%;margin-top:20px;font-size:14px;">
+      <tr><td style="padding:4px 0;color:#666a73;">Subtotal</td><td style="text-align:right;">${formatMoney(order.itemsPrice)}</td></tr>
+      <tr><td style="padding:4px 0;color:#666a73;">Shipping</td><td style="text-align:right;">${formatMoney(order.shippingPrice)}</td></tr>
+      <tr><td style="padding:4px 0;color:#666a73;">Tax</td><td style="text-align:right;">${formatMoney(order.taxPrice)}</td></tr>
+      <tr><td style="padding:14px 0 0;font-size:17px;font-weight:bold;">Grand total</td><td style="padding:14px 0 0;text-align:right;font-size:17px;font-weight:bold;color:#d94f83;">${formatMoney(order.totalPrice)}</td></tr>
+    </table>
+    <p style="margin:32px 0 0;color:#858993;font-size:12px;">Y2K Tech Shop · Retro energy, modern flow.</p>
+  </div>
+</div></body></html>`;
+};
+
+module.exports = { createReceiptPdf, createOrderEmailMessage, createOrderEmailHtml, formatMoney };

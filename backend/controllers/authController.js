@@ -215,12 +215,19 @@ exports.forgotPassword = async (req, res, next) => {
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const resetUrl = `${frontendUrl.replace(/\/$/, '')}/password/reset/${resetToken}`;
     const message = `Your password reset token is as follow:\n\n${resetUrl}\n\nIf you have not requested this email, then ignore it.`;
+    const html = `<!doctype html><html><body style="margin:0;background:#f4f4f6;font-family:Arial,sans-serif;color:#24252b;">
+<div style="max-width:560px;margin:0 auto;padding:32px 16px;"><div style="background:#18191f;padding:28px 32px;border-radius:16px 16px 0 0;color:#fff;">
+<div style="color:#f4a8c6;font-size:12px;font-weight:bold;letter-spacing:2px;">Y2K TECH SHOP</div><h1 style="margin:14px 0 0;font-size:26px;">Reset your password</h1></div>
+<div style="background:#fff;padding:32px;border-radius:0 0 16px 16px;"><p>We received a request to reset your password.</p>
+<p style="margin:28px 0;"><a href="${resetUrl}" style="display:inline-block;background:#d94f83;color:#fff;text-decoration:none;padding:13px 20px;border-radius:8px;font-weight:bold;">Reset password</a></p>
+<p style="color:#666a73;font-size:13px;">If you did not request this email, you can safely ignore it. This link will expire shortly.</p></div></div></body></html>`;
 
     try {
         await sendEmail({
             email: user.email,
             subject: 'ShopIT Password Recovery',
-            message
+            message,
+            html
         });
 
         res.status(200).json({

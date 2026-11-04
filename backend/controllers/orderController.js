@@ -3,7 +3,7 @@ const Product = require('../models/product');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 const sendEmail = require('../utils/sendEmail');
-const { createReceiptPdf, createOrderEmailMessage } = require('../utils/orderReceipt');
+const { createReceiptPdf, createOrderEmailMessage, createOrderEmailHtml } = require('../utils/orderReceipt');
 const { ORDER_STATUSES, TRANSACTION_STATUSES, isValidStatusTransition } = require('../utils/orderLifecycle');
 const { isValidIdempotencyKey, createOrderFingerprint } = require('../utils/orderIdempotency');
 
@@ -37,6 +37,7 @@ const emailOrderReceipt = async (order, statusUpdate = false) => {
             email: user.email,
             subject: `Y2K Tech Shop order ${statusUpdate ? 'update' : 'confirmation'} ${order._id}`,
             message: createOrderEmailMessage(order, user.name, statusUpdate),
+            html: createOrderEmailHtml(order, user.name, statusUpdate),
             attachments: [{ filename: `y2k-receipt-${order._id}.pdf`, content: pdf, contentType: 'application/pdf' }]
         });
         await Order.updateOne({ _id: order._id }, { $set: { receiptEmailSentAt: new Date() } });
