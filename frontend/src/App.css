@@ -3945,7 +3945,15 @@ h3 {
     font-size: .95rem;
 }
 
-.admin-heading > a {
+.admin-heading-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.admin-heading-actions > a {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -3960,7 +3968,7 @@ h3 {
     white-space: nowrap;
 }
 
-.admin-heading > a:hover {
+.admin-heading-actions > a:hover {
     border-color: #b98299;
     background: #fbf5f8;
 }

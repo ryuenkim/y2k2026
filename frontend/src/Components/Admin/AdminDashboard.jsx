@@ -241,7 +241,7 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
 
     return (
         <main className="admin-page modern-admin">
-            <header className="admin-heading"><div><p className="eyebrow">Y2K CONTROL ROOM</p><h1>Store administration</h1><p className="admin-subtitle">Manage catalog, customers, orders and growth.</p></div><Link to="/admin" className="back-link">Dashboard</Link></header>
+            <header className="admin-heading"><div><p className="eyebrow">Y2K CONTROL ROOM</p><h1>Store administration</h1><p className="admin-subtitle">Manage catalog, customers, orders and growth.</p></div><div className="admin-heading-actions"><Link to="/shop" className="back-link">Back to shop</Link><Link to="/admin" className="back-link">Dashboard</Link></div></header>
             {(error || adminError || analyticsError) && <p className="error-state admin-alert" role="alert">{error || adminError || analyticsError}</p>}
             {message && <p className="admin-message" role="status">{message}</p>}
             {(actionLoading || adminLoading) && <p className="admin-message" role="status" aria-live="polite">{adminLoading ? 'Loading admin data...' : 'Processing action...'}</p>}

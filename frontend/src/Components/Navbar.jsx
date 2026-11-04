@@ -28,18 +28,12 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
         <nav className="navbar">
             <div className="nav-container">
                 {!isAuthPage && <div className="nav-links">
-                    {isAdmin ? (
-                        <>
-                            <NavLink to="/admin">Dashboard</NavLink>
-                            <NavLink to="/shop">Shop</NavLink>
-                        </>
-                    ) : <>
-                        <NavLink to="/" end>Home</NavLink>
-                        <NavLink to="/shop">Shop</NavLink>
-                    </>}
+                    <NavLink to="/" end>Home</NavLink>
+                    <NavLink to="/shop">Shop</NavLink>
+                    {isAdmin && <NavLink to="/admin">Dashboard</NavLink>}
                 </div>}
 
-                <Link to={isAdmin ? '/admin' : '/'} className="brand-logo">
+                <Link to="/" className="brand-logo">
                     <span className="brand-mark" aria-hidden="true"><FaBolt /></span>
                     <span className="brand-wordmark">Y2K <strong>TECH SHOP</strong></span>
                 </Link>
@@ -50,7 +44,7 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
                         <span className="cart-count">{cartCount}</span>
                     </Link>}
                     {user ? (
-                        <Link to={isAdmin ? '/admin' : '/profile'} className="profile-nav-link">
+                        <Link to="/profile" className="profile-nav-link">
                             <span className="nav-avatar-frame">
                                 {user.avatar?.url ? <img src={user.avatar.url} alt="" /> : <span>{user.name?.charAt(0).toUpperCase() || <FaUser />}</span>}
                             </span>
