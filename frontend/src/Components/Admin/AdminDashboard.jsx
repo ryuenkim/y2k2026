@@ -227,12 +227,16 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
             {(error || adminError || analyticsError) && <p className="error-state admin-alert" role="alert">{error || adminError || analyticsError}</p>}
             {message && <p className="admin-message" role="status">{message}</p>}
             {(actionLoading || adminLoading) && <p className="admin-message" role="status" aria-live="polite">{adminLoading ? 'Loading admin data...' : 'Processing action...'}</p>}
-            <nav className="admin-tabs modern-tabs" aria-label="Administration sections">{['overview', 'products', 'orders', 'users', 'reviews'].map((name) => <button type="button" aria-current={tab === name ? 'page' : undefined} className={tab === name ? 'active' : ''} key={name} onClick={() => { setTab(name); setError(''); setMessage(''); }}>{name}</button>)}</nav>
-            {tab === 'overview' && <AdminOverview stats={stats} analytics={analytics} analyticsLoading={analyticsLoading} range={range} setRange={setRange} onApply={loadAnalytics} />}
-            {tab === 'products' && <AdminProducts products={products} selected={selected} setSelected={setSelected} productForm={productForm} setProductForm={setProductForm} productErrors={productErrors} setProductErrors={setProductErrors} editingProduct={editingProduct} actionLoading={actionLoading} onSubmit={submitProduct} onEdit={editProduct} onCancelEdit={cancelProductEdit} onDeleteSelected={deleteSelected} />}
-            {tab === 'orders' && <AdminOrders orders={orders} onUpdate={updateOrder} />}
-            {tab === 'users' && <AdminUsers users={users} onUpdate={updateUser} />}
-            {tab === 'reviews' && <AdminReviews products={products} onDelete={deleteReview} />}
+            <div className="admin-workspace">
+                <nav className="admin-tabs modern-tabs" aria-label="Administration sections">{['overview', 'products', 'orders', 'users', 'reviews'].map((name) => <button type="button" aria-current={tab === name ? 'page' : undefined} className={tab === name ? 'active' : ''} key={name} onClick={() => { setTab(name); setError(''); setMessage(''); }}>{name}</button>)}</nav>
+                <div className="admin-content">
+                    {tab === 'overview' && <AdminOverview stats={stats} analytics={analytics} analyticsLoading={analyticsLoading} range={range} setRange={setRange} onApply={loadAnalytics} />}
+                    {tab === 'products' && <AdminProducts products={products} selected={selected} setSelected={setSelected} productForm={productForm} setProductForm={setProductForm} productErrors={productErrors} setProductErrors={setProductErrors} editingProduct={editingProduct} actionLoading={actionLoading} onSubmit={submitProduct} onEdit={editProduct} onCancelEdit={cancelProductEdit} onDeleteSelected={deleteSelected} />}
+                    {tab === 'orders' && <AdminOrders orders={orders} onUpdate={updateOrder} />}
+                    {tab === 'users' && <AdminUsers users={users} onUpdate={updateUser} />}
+                    {tab === 'reviews' && <AdminReviews products={products} onDelete={deleteReview} />}
+                </div>
+            </div>
         </main>
     );
 };
