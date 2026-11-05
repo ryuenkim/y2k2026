@@ -96,21 +96,18 @@ const AdminDashboard = ({ user, initialTab = 'overview' }) => {
         event.preventDefault();
         setProductErrors({});
         const imageCount = (productForm.images?.length || 0) + (productForm.newImages?.length || 0);
-        if (!imageCount) {
-            const message = 'Add at least one product image before saving.';
-            setProductErrors({ images: message });
-            setError(message);
-            notify(message, 'error');
-            return;
-        }
+        let fieldErrors = {};
         try {
             await productSchema.validate(
                 { ...productForm, price: productForm.price === '' ? undefined : Number(productForm.price), stock: productForm.stock === '' ? undefined : Number(productForm.stock) },
                 { abortEarly: false }
             );
         } catch (validationError) {
-            const fieldErrors = Object.fromEntries((validationError.inner || []).map((item) => [item.path, item.message]));
+            fieldErrors = Object.fromEntries((validationError.inner || []).map((item) => [item.path, item.message]));
             if (!Object.keys(fieldErrors).length && validationError.path) fieldErrors[validationError.path] = validationError.message;
+        }
+        if (!imageCount) fieldErrors.images = 'Add at least one product image before saving.';
+        if (Object.keys(fieldErrors).length) {
             setProductErrors(fieldErrors);
             const firstError = Object.values(fieldErrors)[0] || 'Check the product information and try again.';
             setError(firstError);

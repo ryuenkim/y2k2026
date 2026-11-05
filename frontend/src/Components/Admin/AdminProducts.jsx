@@ -1,4 +1,5 @@
 import { DataGrid } from '@mui/x-data-grid';
+import { Autocomplete, TextField } from '@mui/material';
 import AdminGridToolbar from './AdminGridToolbar';
 import { DEFAULT_CATEGORIES } from '../../constants/categories';
 
@@ -57,11 +58,25 @@ const AdminProducts = ({
                     <input id="admin-product-seller" required placeholder="Seller or store name" value={productForm.seller} {...fieldProps('seller')} onChange={(event) => setField('seller', event.target.value)} />
                     {fieldError('seller')}
                 </label>
-                <label className="admin-field" htmlFor="admin-product-category"><span className="admin-field-label">Category <b aria-hidden="true">*</b></span>
-                    <input id="admin-product-category" required list="admin-product-category-options" maxLength={50} placeholder="Choose or type a category" value={productForm.category} {...fieldProps('category')} onChange={(event) => setField('category', event.target.value)} />
-                    <datalist id="admin-product-category-options">{categories.map((category) => <option key={category} value={category} />)}</datalist>
+                <div className="admin-field"><span className="admin-field-label">Category <b aria-hidden="true">*</b></span>
+                    <Autocomplete
+                        freeSolo
+                        options={categories}
+                        value={productForm.category || ''}
+                        inputValue={productForm.category || ''}
+                        onChange={(_, value) => setField('category', value || '')}
+                        onInputChange={(_, value) => setField('category', value)}
+                        renderInput={(params) => <TextField
+                            {...params}
+                            id="admin-product-category"
+                            required
+                            placeholder="Choose or type a category"
+                            error={Boolean(productErrors.category)}
+                            inputProps={{ ...params.inputProps, maxLength: 50, 'aria-invalid': Boolean(productErrors.category), 'aria-describedby': productErrors.category ? 'product-category-error' : undefined }}
+                        />}
+                    />
                     {fieldError('category')}
-                </label>
+                </div>
                 <label className="admin-field" htmlFor="admin-product-description"><span className="admin-field-label">Description <b aria-hidden="true">*</b></span>
                     <textarea id="admin-product-description" required minLength={5} placeholder="Describe the product and its key details" value={productForm.description} {...fieldProps('description')} onChange={(event) => setField('description', event.target.value)} />
                     {fieldError('description')}
