@@ -83,6 +83,57 @@ button, a {
     object-fit: contain;
 }
 
+.site-footer {
+    margin-top: 4rem;
+    border-top: 1px solid #e8dfe4;
+    background: #fff;
+}
+
+.site-footer-inner {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 2rem;
+    width: min(100% - 3rem, 1200px);
+    min-height: 150px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.site-footer-logo img {
+    display: block;
+    width: 120px;
+    height: auto;
+}
+
+.site-footer-brand p,
+.site-footer-copy {
+    margin-top: .65rem;
+    color: #777e88;
+    font-size: .78rem;
+}
+
+.site-footer-links {
+    display: flex;
+    gap: 1.15rem;
+}
+
+.site-footer-links a {
+    color: #252833;
+    font-size: .78rem;
+    font-weight: 650;
+    text-decoration: none;
+}
+
+.site-footer-links a:hover {
+    color: #98445f;
+}
+
+.site-footer-copy {
+    margin-top: 0;
+    white-space: nowrap;
+}
+
 .search-box {
     display: flex;
     width: 40%;
@@ -4712,6 +4763,26 @@ h3 {
         animation-duration: .01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: .01ms !important;
+    }
+
+    .landing-orbit img {
+        display: block;
+        width: min(230px, 48vw);
+        height: auto;
+        margin: 0 auto;
+        object-fit: contain;
+    }
+
+    @media (max-width: 700px) {
+        .site-footer-inner {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            width: min(100% - 2rem, 1200px);
+        }
+
+        .site-footer-copy {
+            margin-top: 0;
+        }
     }
 }
 

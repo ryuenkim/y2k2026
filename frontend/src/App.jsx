@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Navbar from './Components/Navbar';
+import Footer from './Components/Footer';
 import Home from './Components/Home';
 import Landing from './Components/Landing';
 import ProductDetails from './Components/Products/ProductDetails';
@@ -88,6 +89,7 @@ function App() {
           <Route path="/admin/product" element={<AdminRoute user={user} authChecked={authChecked} initialTab="products" />} />
           <Route path="/admin/products" element={<AdminRoute user={user} authChecked={authChecked} initialTab="products" />} />
         </Routes>
+        <Footer />
       </div>
       </DialogProvider>
     </Router>

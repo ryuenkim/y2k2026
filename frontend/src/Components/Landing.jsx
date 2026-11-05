@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import logo from '../../logo/logo.png';
 
 export default function Landing({ user }) {
     return <main className="landing-page">
@@ -13,7 +14,7 @@ export default function Landing({ user }) {
                     {user && <Link className="secondary-action" to="/orders">View your orders</Link>}
                 </div>
             </div>
-            <div className="landing-orbit" aria-hidden="true"><span>Y2K</span><b>TECH<br />REIMAGINED</b></div>
+            <div className="landing-orbit" aria-hidden="true"><img src={logo} alt="" /><b>TECH<br />REIMAGINED</b></div>
         </section>
         <section className="landing-details">
             <article><span>01</span><h2>Curated drops</h2><p>Retro-futuristic pieces selected for bold desks, bags, and daily setups.</p></article>
