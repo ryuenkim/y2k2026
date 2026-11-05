@@ -372,8 +372,8 @@ exports.updateProfile = async (req, res, next) => {
 // Update password => /api/v1/password/update
 exports.updatePassword = async (req, res, next) => {
     const { oldPassword, password, confirmPassword } = req.body;
-    if (!oldPassword || !password || password.length < 6) {
-        return res.status(400).json({ message: 'Current password and a new password of at least 6 characters are required' });
+    if (!oldPassword || !password || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(password)) {
+        return res.status(400).json({ message: 'Current password and a new password with at least 8 characters, one uppercase letter, one lowercase letter, and one number are required' });
     }
     if (password !== confirmPassword) {
         return res.status(400).json({ message: 'New passwords do not match' });

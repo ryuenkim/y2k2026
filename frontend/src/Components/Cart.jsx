@@ -5,7 +5,8 @@ import { useDialog } from './dialogContext';
 const Cart = ({ items, updateQuantity, removeItem }) => {
     const navigate = useNavigate();
     const { confirm, notify } = useDialog();
-    const [selectedProducts, setSelectedProducts] = useState(() => items.map((item) => item.product));
+    const [selectedProductsState, setSelectedProductsState] = useState(null);
+    const selectedProducts = selectedProductsState || items.map((item) => item.product);
     const selectedItems = items.filter((item) => selectedProducts.includes(item.product));
     const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     return (
@@ -21,9 +22,9 @@ const Cart = ({ items, updateQuantity, removeItem }) => {
                                         type="checkbox"
                                         aria-label={`Select ${item.name} for checkout`}
                                         checked={selectedProducts.includes(item.product)}
-                                        onChange={(event) => setSelectedProducts((selected) => event.target.checked
-                                            ? [...selected, item.product]
-                                            : selected.filter((product) => product !== item.product))}
+                                        onChange={(event) => setSelectedProductsState(event.target.checked
+                                            ? [...selectedProducts, item.product]
+                                            : selectedProducts.filter((product) => product !== item.product))}
                                     />
                                 </label>
                                 <img src={item.image} alt={item.name} />
@@ -35,7 +36,7 @@ const Cart = ({ items, updateQuantity, removeItem }) => {
                                 </div>
                                 <button type="button" className="text-button" onClick={async () => {
                                     if (await confirm(`Remove ${item.name} from your cart?`, 'Remove cart item?')) {
-                                        setSelectedProducts((selected) => selected.filter((product) => product !== item.product));
+                                        setSelectedProductsState(selectedProducts.filter((product) => product !== item.product));
                                         removeItem(item.product);
                                         notify(`${item.name} removed from your cart.`, 'info');
                                     }

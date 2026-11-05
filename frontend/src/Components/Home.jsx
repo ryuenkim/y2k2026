@@ -141,30 +141,31 @@ const Home = ({ user }) => {
         setFilterError('');
         navigate('/shop');
     };
-    const applyFilters = () => {
-        const minimum = filters.minPrice === '' ? null : Number(filters.minPrice);
-        const maximum = filters.maxPrice === '' ? null : Number(filters.maxPrice);
-        if ((minimum !== null && (!Number.isFinite(minimum) || minimum < 0))
-            || (maximum !== null && (!Number.isFinite(maximum) || maximum < 0))) {
-            const message = 'Price filters must be zero or more.';
-            setFilterError(message);
-            notify(message, 'error');
-            return;
-        }
-        if (minimum !== null && maximum !== null && minimum > maximum) {
-            const message = 'Minimum price cannot be greater than maximum price.';
-            setFilterError(message);
-            notify(message, 'error');
-            return;
-        }
-        setFilterError('');
-        const nextParams = new URLSearchParams(searchParams);
-        Object.entries(filters).forEach(([name, value]) => {
-            if (value && !(name === 'sort' && value === 'newest')) nextParams.set(name, value);
-            else nextParams.delete(name);
-        });
-        navigate(`/shop${nextParams.size ? `?${nextParams.toString()}` : ''}`, { replace: true });
-    };
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const minimum = filters.minPrice === '' ? null : Number(filters.minPrice);
+            const maximum = filters.maxPrice === '' ? null : Number(filters.maxPrice);
+            if ((minimum !== null && (!Number.isFinite(minimum) || minimum < 0))
+                || (maximum !== null && (!Number.isFinite(maximum) || maximum < 0))
+                || (minimum !== null && maximum !== null && minimum > maximum)) {
+                setFilterError(minimum !== null && maximum !== null && minimum > maximum
+                    ? 'Minimum price cannot be greater than maximum price.'
+                    : 'Price filters must be zero or more.');
+                return;
+            }
+            setFilterError('');
+            const nextParams = new URLSearchParams(searchParams);
+            Object.entries(filters).forEach(([name, value]) => {
+                if (value && !(name === 'sort' && value === 'newest')) nextParams.set(name, value);
+                else nextParams.delete(name);
+            });
+            const nextQuery = nextParams.toString();
+            if (nextQuery !== searchParams.toString()) {
+                navigate(`/shop${nextQuery ? `?${nextQuery}` : ''}`, { replace: true });
+            }
+        }, 200);
+        return () => clearTimeout(timer);
+    }, [filters, navigate, searchParams]);
     const submitSearch = (event) => {
         event.preventDefault();
         const value = keyword.trim();
@@ -209,7 +210,6 @@ const Home = ({ user }) => {
                     <option value="rating">Highest rated</option>
                     <option value="reviews">Most reviewed</option>
                 </select>
-                <button type="button" className="search-btn" onClick={applyFilters}>Apply filters</button>
                 <button type="button" className="clear-filters" onClick={clearFilters}>Clear filters</button>
             </div>
             {filterError && <p id="catalog-filter-error" className="field-error filter-error" role="alert">{filterError}</p>}

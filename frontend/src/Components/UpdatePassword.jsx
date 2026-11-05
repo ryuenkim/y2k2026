@@ -7,7 +7,12 @@ import api from '../api';
 
 const schema = yup.object({
     oldPassword: yup.string().required('Current password is required'),
-    password: yup.string().min(6, 'New password must be at least 6 characters').required('New password is required'),
+    password: yup.string()
+        .min(8, 'New password must be at least 8 characters')
+        .matches(/[A-Z]/, 'New password must include an uppercase letter')
+        .matches(/[a-z]/, 'New password must include a lowercase letter')
+        .matches(/[0-9]/, 'New password must include a number')
+        .required('New password is required'),
     confirmPassword: yup.string().oneOf([yup.ref('password')], 'Passwords must match').required('Please confirm the new password')
 });
 
