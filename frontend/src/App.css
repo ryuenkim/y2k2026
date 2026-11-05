@@ -2874,10 +2874,10 @@ textarea:focus-visible {
 
 .landing-orbit {
     width: min(100%, 350px);
-    border-color: var(--line);
-    border-radius: 20px;
-    background: var(--pink-soft);
-    box-shadow: 12px 12px 0 var(--pink);
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
     transform: none;
 }
 
@@ -5398,9 +5398,10 @@ select:hover:not(:disabled) {
 
 .admin-page .admin-product-grid .admin-grid-toolbar {
     display: flex;
+    align-items: center;
     justify-content: flex-end;
     min-height: 52px;
-    padding: .35rem .65rem;
+    padding: .5rem 1rem;
     border-bottom: 1px solid #eff0f2;
 }
 
@@ -5410,8 +5411,22 @@ select:hover:not(:disabled) {
 }
 
 .admin-page .admin-product-grid .admin-grid-toolbar input {
-    max-width: min(280px, 55vw);
+    width: min(320px, 100%);
+    max-width: none;
+    padding: .55rem .75rem;
+    border: 1px solid #cfd3da;
+    border-radius: 8px;
+    background: #fff;
     color: #292d35;
+}
+
+.admin-page .admin-product-grid .admin-grid-toolbar input:hover {
+    border-color: #9c7187;
+}
+
+.admin-page .admin-product-grid .admin-grid-toolbar input:focus {
+    border-color: #834e67;
+    outline: 3px solid rgb(131 78 103 / 18%);
 }
 
 .admin-page .admin-product-grid .admin-grid-toolbar button:focus-visible,
