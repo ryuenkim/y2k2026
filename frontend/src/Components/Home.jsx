@@ -5,6 +5,7 @@ import { fetchProducts } from '../actions/productActions';
 import { addToCart } from '../actions/cartActions';
 import { useDialog } from './dialogContext';
 import ImageSlider from './ImageSlider';
+import { DEFAULT_CATEGORIES } from '../constants/categories';
 
 const ProductCard = ({ product, location, user, dispatch, navigate, notify }) => {
     const images = product.images?.map((image) => image.url).filter(Boolean) || [];
@@ -59,6 +60,7 @@ const Home = ({ user }) => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { notify } = useDialog();
+    const categories = [...new Set([...DEFAULT_CATEGORIES, ...products.map((product) => product.category).filter(Boolean)])];
     const loadMoreRef = useRef(null);
     const readFilters = useCallback(() => ({
         category: searchParams.get('category') || '',
@@ -193,7 +195,7 @@ const Home = ({ user }) => {
             <div className="catalog-filters" aria-busy={loading || loadingMore}>
                 <select aria-label="Filter by category" value={filters.category} onChange={(event) => updateFilter('category', event.target.value)}>
                     <option value="">All categories</option>
-                    {['Laptops', 'Accessories', 'Headphones', 'Cell Phones', 'Cameras', 'Gaming', 'Y2K Gadgets'].map((category) => <option key={category}>{category}</option>)}
+                    {categories.map((category) => <option key={category}>{category}</option>)}
                 </select>
                 <input type="number" min="0" aria-label="Minimum price" aria-invalid={Boolean(filterError)} aria-describedby={filterError ? 'catalog-filter-error' : undefined} placeholder="Min price" value={filters.minPrice} onChange={(event) => { updateFilter('minPrice', event.target.value); setFilterError(''); }} />
                 <input type="number" min="0" aria-label="Maximum price" aria-invalid={Boolean(filterError)} aria-describedby={filterError ? 'catalog-filter-error' : undefined} placeholder="Max price" value={filters.maxPrice} onChange={(event) => { updateFilter('maxPrice', event.target.value); setFilterError(''); }} />

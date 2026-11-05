@@ -1,13 +1,13 @@
 import { DataGrid } from '@mui/x-data-grid';
 import AdminGridToolbar from './AdminGridToolbar';
-
-const categories = ['Laptops', 'Accessories', 'Headphones', 'Cell Phones', 'Cameras', 'Gaming', 'Y2K Gadgets'];
+import { DEFAULT_CATEGORIES } from '../../constants/categories';
 
 const AdminProducts = ({
     products, selected, setSelected, productForm, setProductForm, productErrors,
     setProductErrors, editingProduct, actionLoading, onSubmit, onEdit, onCancelEdit,
     onDeleteSelected
 }) => {
+    const categories = [...new Set([...DEFAULT_CATEGORIES, ...products.map((product) => product.category).filter(Boolean), productForm.category].filter(Boolean))];
     const setField = (field, value) => {
         setProductForm((current) => ({ ...current, [field]: value }));
         setProductErrors((current) => ({
@@ -58,7 +58,8 @@ const AdminProducts = ({
                     {fieldError('seller')}
                 </label>
                 <label className="admin-field" htmlFor="admin-product-category"><span className="admin-field-label">Category <b aria-hidden="true">*</b></span>
-                    <select id="admin-product-category" required value={productForm.category} {...fieldProps('category')} onChange={(event) => setField('category', event.target.value)}>{categories.map((category) => <option key={category}>{category}</option>)}</select>
+                    <input id="admin-product-category" required list="admin-product-category-options" maxLength={50} placeholder="Choose or type a category" value={productForm.category} {...fieldProps('category')} onChange={(event) => setField('category', event.target.value)} />
+                    <datalist id="admin-product-category-options">{categories.map((category) => <option key={category} value={category} />)}</datalist>
                     {fieldError('category')}
                 </label>
                 <label className="admin-field" htmlFor="admin-product-description"><span className="admin-field-label">Description <b aria-hidden="true">*</b></span>

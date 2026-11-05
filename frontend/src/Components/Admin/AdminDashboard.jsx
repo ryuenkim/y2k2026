@@ -23,7 +23,7 @@ const productSchema = yup.object({
     stock: yup.number().typeError('Enter a valid stock quantity').integer('Stock must be a whole number').min(0, 'Stock cannot be negative').required('Stock is required'),
     description: yup.string().trim().min(5, 'Description must be at least 5 characters').required('Description is required'),
     seller: yup.string().trim().min(2, 'Seller name must be at least 2 characters').required('Seller is required'),
-    category: yup.string().oneOf(['Laptops', 'Accessories', 'Headphones', 'Cell Phones', 'Cameras', 'Gaming', 'Y2K Gadgets'], 'Choose a valid category').required('Category is required')
+    category: yup.string().trim().min(2, 'Category must be at least 2 characters').max(50, 'Category must be 50 characters or fewer').required('Category is required')
 });
 
 const AdminDashboard = ({ user, initialTab = 'overview' }) => {

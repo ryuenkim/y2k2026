@@ -36,3 +36,7 @@ test('product model rejects negative prices and stock', async () => {
 test('product model rejects fractional stock', async () => {
     assert.ok((await getValidationError(createProduct({ stock: 1.5 }))).errors.stock);
 });
+
+test('product model accepts a custom category', async () => {
+    assert.equal(await getValidationError(createProduct({ category: 'Studio Lighting' })), null);
+});
