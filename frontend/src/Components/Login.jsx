@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { facebookLogin, googleLogin, loginUser } from '../actions/authActions';
 import { isFirebaseConfigured } from '../config/firebaseConfig';
 import { useDialog } from './dialogContext';
+import logo from '../../logo/logo.png';
 
 const loginSchema = yup.object({
     email: yup.string().email('Enter a valid email').required('Email is required'),
@@ -69,7 +70,7 @@ const Login = () => {
         }
     };
     const socialLoginBusy = Boolean(socialProviderLoading);
-    return <main className="auth-page"><section className="auth-panel"><Link className="auth-brand" to="/">Y2K<span>TECH</span></Link><p className="eyebrow">WELCOME BACK</p><h1>Good to see you.</h1><p className="auth-intro">Sign in to continue to your collection, orders, and account space.</p><form onSubmit={handleSubmit(submit)}>
+    return <main className="auth-page"><section className="auth-panel"><Link className="auth-brand" to="/"><img src={logo} className="auth-logo" alt="Y2K Tech Shop" /></Link><p className="eyebrow">WELCOME BACK</p><h1>Good to see you.</h1><p className="auth-intro">Sign in to continue to your collection, orders, and account space.</p><form onSubmit={handleSubmit(submit)}>
         {error && <p className="error-state" role="alert" aria-live="polite">{error}</p>}
         <label htmlFor="login-email">Email address</label><input id="login-email" type="email" autoComplete="email" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'login-email-error' : undefined} placeholder="you@example.com" {...register('email')} />{errors.email && <small id="login-email-error" className="field-error" role="alert">{errors.email.message}</small>}
         <label htmlFor="login-password">Password</label><input id="login-password" type="password" autoComplete="current-password" aria-invalid={Boolean(errors.password)} aria-describedby={errors.password ? 'login-password-error' : undefined} placeholder="Enter your password" {...register('password')} />{errors.password && <small id="login-password-error" className="field-error" role="alert">{errors.password.message}</small>}

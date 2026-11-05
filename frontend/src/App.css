@@ -69,6 +69,20 @@ button, a {
     white-space: nowrap;
 }
 
+.brand-image {
+    display: block;
+    width: 150px;
+    height: auto;
+    object-fit: contain;
+}
+
+.auth-logo {
+    display: block;
+    width: min(230px, 70vw);
+    height: auto;
+    object-fit: contain;
+}
+
 .search-box {
     display: flex;
     width: 40%;

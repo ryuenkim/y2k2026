@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { FaBolt, FaShoppingCart, FaUser } from 'react-icons/fa';
+import { FaShoppingCart, FaUser } from 'react-icons/fa';
 import { useDialog } from './dialogContext';
+import logo from '../../logo/logo.png';
 
 const Navbar = ({ cartCount = 0, user, onLogout }) => {
     const [logoutError, setLogoutError] = useState('');
@@ -34,8 +35,7 @@ const Navbar = ({ cartCount = 0, user, onLogout }) => {
                 </div>}
 
                 <Link to="/" className="brand-logo">
-                    <span className="brand-mark" aria-hidden="true"><FaBolt /></span>
-                    <span className="brand-wordmark">Y2K <strong>TECH SHOP</strong></span>
+                    <img src={logo} className="brand-image" alt="Y2K Tech Shop" />
                 </Link>
 
                 <div className="nav-actions">

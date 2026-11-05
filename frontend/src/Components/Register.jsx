@@ -6,6 +6,7 @@ import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { registerUser } from '../actions/authActions';
 import { useDialog } from './dialogContext';
+import logo from '../../logo/logo.png';
 
 const registerSchema = yup.object({
     name: yup.string().trim().min(2, 'Name must be at least 2 characters').max(30).required('Name is required'),
@@ -29,7 +30,7 @@ const Register = () => {
             setError(requestError.message || 'Unable to create account');
         }
     };
-    return <main className="auth-page"><section className="auth-panel"><Link className="auth-brand" to="/">Y2K<span>TECH</span></Link><p className="eyebrow">NEW ACCOUNT</p><h1>Make it yours.</h1><p className="auth-intro">Create your account for faster checkout, order tracking, and verified reviews.</p><form onSubmit={handleSubmit(submit)}>
+    return <main className="auth-page"><section className="auth-panel"><Link className="auth-brand" to="/"><img src={logo} className="auth-logo" alt="Y2K Tech Shop" /></Link><p className="eyebrow">NEW ACCOUNT</p><h1>Make it yours.</h1><p className="auth-intro">Create your account for faster checkout, order tracking, and verified reviews.</p><form onSubmit={handleSubmit(submit)}>
         {error && <p className="error-state">{error}</p>}
         <label htmlFor="register-name">Full name</label><input id="register-name" autoComplete="name" aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'register-name-error' : undefined} placeholder="Your name" {...register('name')} />{errors.name && <small id="register-name-error" className="field-error" role="alert">{errors.name.message}</small>}
         <label htmlFor="register-email">Email address</label><input id="register-email" type="email" autoComplete="email" aria-invalid={Boolean(errors.email)} aria-describedby={errors.email ? 'register-email-error' : undefined} placeholder="you@example.com" {...register('email')} />{errors.email && <small id="register-email-error" className="field-error" role="alert">{errors.email.message}</small>}
