@@ -1,7 +1,7 @@
 import { DataGrid } from '@mui/x-data-grid';
-import { Autocomplete, TextField } from '@mui/material';
 import AdminGridToolbar from './AdminGridToolbar';
 import { DEFAULT_CATEGORIES } from '../../constants/categories';
+import { useDialog } from '../dialogContext';
 
 const AdminProducts = ({
     products, selected, setSelected, productForm, setProductForm, productErrors,
@@ -9,6 +9,7 @@ const AdminProducts = ({
     onDeleteSelected
 }) => {
     const categories = [...new Set([...DEFAULT_CATEGORIES, ...products.map((product) => product.category).filter(Boolean), productForm.category].filter(Boolean))];
+    const { prompt } = useDialog();
     const setField = (field, value) => {
         setProductForm((current) => ({ ...current, [field]: value }));
         setProductErrors((current) => ({
@@ -24,6 +25,10 @@ const AdminProducts = ({
     const fieldError = (field) => productErrors[field]
         ? <small id={`product-${field}-error`} className="field-error" role="alert">{productErrors[field]}</small>
         : null;
+    const addCategory = async () => {
+        const category = await prompt('Enter a name for the new product category.', '', 'New product category');
+        if (category?.trim()) setField('category', category.trim());
+    };
     const columns = [
         { field: 'image', headerName: 'Image', width: 76, sortable: false, renderCell: ({ row }) => <img className="admin-grid-image" src={row.images?.[0]?.url || ''} alt="" /> },
         { field: 'name', headerName: 'Product', flex: 1, minWidth: 180 },
@@ -59,22 +64,13 @@ const AdminProducts = ({
                     {fieldError('seller')}
                 </label>
                 <div className="admin-field"><span className="admin-field-label">Category <b aria-hidden="true">*</b></span>
-                    <Autocomplete
-                        freeSolo
-                        options={categories}
-                        value={productForm.category || ''}
-                        inputValue={productForm.category || ''}
-                        onChange={(_, value) => setField('category', value || '')}
-                        onInputChange={(_, value) => setField('category', value)}
-                        renderInput={(params) => <TextField
-                            {...params}
-                            id="admin-product-category"
-                            required
-                            placeholder="Choose or type a category"
-                            error={Boolean(productErrors.category)}
-                            inputProps={{ ...params.inputProps, maxLength: 50, 'aria-invalid': Boolean(productErrors.category), 'aria-describedby': productErrors.category ? 'product-category-error' : undefined }}
-                        />}
-                    />
+                    <div className="admin-category-control">
+                        <select id="admin-product-category" required value={productForm.category} {...fieldProps('category')} onChange={(event) => setField('category', event.target.value)}>
+                            <option value="">Choose a category</option>
+                            {categories.map((category) => <option key={category} value={category}>{category}</option>)}
+                        </select>
+                        <button type="button" className="admin-add-category" onClick={addCategory}>+ New category</button>
+                    </div>
                     {fieldError('category')}
                 </div>
                 <label className="admin-field" htmlFor="admin-product-description"><span className="admin-field-label">Description <b aria-hidden="true">*</b></span>

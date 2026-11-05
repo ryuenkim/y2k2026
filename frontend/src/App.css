@@ -4239,6 +4239,34 @@ h3 {
     color: #a63e52;
 }
 
+.admin-category-control {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+}
+
+.admin-category-control select {
+    flex: 1;
+}
+
+.admin-add-category {
+    flex: 0 0 auto;
+    min-height: 42px;
+    padding: .65rem .85rem;
+    border: 1px solid #252833;
+    border-radius: 8px;
+    background: #fff;
+    color: #252833;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-add-category:hover,
+.admin-add-category:focus-visible {
+    background: #252833;
+    color: #fff;
+}
+
 .admin-field > small:not(.field-error) {
     margin-top: -.15rem;
     color: #7a8089;
